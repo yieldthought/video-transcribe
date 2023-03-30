@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Video Transcript Player</title>
+	<meta charset="utf-8">
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Video Transcript Player</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		body {
+			background-color: #181818;
+			color: #f5f5f5;
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			line-height: 1.5;
+			margin: 0;
+			padding: 0;
+		}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 10px;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 100vh;
+}
+
+.video-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    flex: 3; /* Updated flex property */
+}
+
+.video-container video {
+    max-width: 100%;
+    max-height: 98%;
+    width: auto;
+    height: auto;
+}
+
+.transcript-container {
+    flex: 3;
+    overflow-y: scroll;
+    height: 98%;
+    width: 100%;
+    margin-left: 40px;
+    padding: 40px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    background-color: #282828;
+}
+
+.transcript-entry.current {
+    background-color: #444;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="video-container">
+			<video id="video-player" width="100%" controls>
+				<source src="VIDEO_NAME">
+				Your browser does not support the video tag.
+			</video>
+		</div>
+		<div class="transcript-container" id="transcript-container"></div>
+	</div>
+<script>
+  // Load the transcript file
+  fetch('TXT_NAME')
+    .then(response => response.text())
+    .then(text => {
+        // Parse the transcript file
+        const entries = text.split('\n').filter(Boolean).map(line => {
+            // Example: [00:00:00.000 --> 00:00:01.000] Hello
+            const [time, text] = line.split('] ');
+            const [start, end] = time.replace('[', '').split(' --> ');
+            return { start, end, text };
+        });
+
+      // Display the transcript text
+      const transcriptContainer = document.getElementById('transcript-container');
+      entries.forEach(entry => {
+        const p = document.createElement('p');
+        p.classList.add('transcript-entry');
+        p.innerHTML = entry.text;
+        p.dataset.start = timeToSeconds(entry.start);
+        p.addEventListener('click', () => jumpToTime(p.dataset.start));
+        transcriptContainer.appendChild(p);
+      });
+
+      // Add event listener to the video player
+      const videoPlayer = document.getElementById('video-player');
+      videoPlayer.addEventListener('timeupdate', updateTranscript);
+
+      // Functions to jump to a specific time and update the transcript
+      function jumpToTime(time) {
+        videoPlayer.currentTime = parseFloat(time) + 0.1;
+        updateTranscript();
+      }
+
+      function updateTranscript() {
+        const currentTime = videoPlayer.currentTime;
+        const currentEntry = entries.find(entry => currentTime >= timeToSeconds(entry.start) && currentTime <= timeToSeconds(entry.end));
+        if (currentEntry) {
+          const transcriptEntries = document.querySelectorAll('.transcript-entry');
+          transcriptEntries.forEach(entry => {
+            if (parseFloat(entry.dataset.start) === timeToSeconds(currentEntry.start)) {
+              entry.classList.add('current');
+            } else {
+              entry.classList.remove('current');
+            }
+          });
+        }
+      }
+
+      function timeToSeconds(time) {
+        parts = time.split(":").map(parseFloat);
+        if (parts.length === 2) {
+          parts.unshift(0);
+        }
+        const [hours, minutes, seconds] = parts;
+        return hours * 3600 + minutes * 60 + seconds;
+      }
+    });
+</script>
+
+
+</body>
+</html>
+
