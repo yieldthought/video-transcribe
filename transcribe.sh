@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 usage() {
   echo "Usage: $0 [-h] [-m model] input_file output_file"
   echo "Transcribe an audio file with timestamps using whisper.cpp"
