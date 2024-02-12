@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 VIDEO="$1"
 TXT="$2"
 
@@ -11,8 +13,8 @@ if [ "$1" == "--help" ] || [ "$2" == "" ]; then
     exit 1
 fi
 
-sed s/VIDEO_NAME/$VIDEO/g template.html > ~tmp
-sed s/TXT_NAME/$TXT/g ~tmp > index.html
+sed s:VIDEO_NAME:${VIDEO}:g template.html > ~tmp
+sed s:TXT_NAME:${TXT}:g ~tmp > index.html
 rm ~tmp
 
 http-server
